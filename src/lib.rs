@@ -1,3 +1,5 @@
+use std::{fmt::Debug, ops::{Add, Div, Mul, Sub}};
+
 /// Vector Subtraction
 ///
 /// Subtract two vectors.
@@ -29,12 +31,15 @@
 /// # Returns
 ///
 /// A new vector containing the difference of the two input vectors.
-pub fn sub<const F: usize>(vec_a: &[i32; F], vec_b: &[i32; F]) -> [i32; F] {
+pub fn sub<'a, 'b, const F: usize, T: Sub<Output = T> + Div<Output = T> + Debug + Copy>(vec_a: &'a [T; F], vec_b: &'b [T; F]) -> [T; F]
+where 
+    &'a T: Sub<&'a T>
+{
     vec_a
         .iter()
         .zip(vec_b.iter())
-        .map(|(a, b)| a - b)
-        .collect::<Vec<i32>>()
+        .map(|(a, b)| *a - *b)
+        .collect::<Vec<T>>()
         .try_into()
         .unwrap()
 }
@@ -70,12 +75,15 @@ pub fn sub<const F: usize>(vec_a: &[i32; F], vec_b: &[i32; F]) -> [i32; F] {
 /// # Returns
 ///
 /// A new vector containing the sum of the two input vectors.
-pub fn add<const F: usize>(vec_a: &[i32; F], vec_b: &[i32; F]) -> [i32; F] {
+pub fn add<'a, 'b, const F: usize, T: Add<Output = T> + Div<Output = T> + Debug + Copy>(vec_a: &'a [T; F], vec_b: &'b [T; F]) -> [T; F]
+where 
+    &'a T: Add<&'a T>
+{
     vec_a
         .iter()
         .zip(vec_b.iter())
-        .map(|(a, b)| a + b)
-        .collect::<Vec<i32>>()
+        .map(|(a, b)| *a + *b)
+        .collect::<Vec<T>>()
         .try_into()
         .unwrap()
 }
@@ -106,10 +114,13 @@ pub fn add<const F: usize>(vec_a: &[i32; F], vec_b: &[i32; F]) -> [i32; F] {
 /// # Returns
 ///
 /// A new vector containing the scaled values of the input vector.
-pub fn scale<const F: usize>(vec: &[i32; F], scalar: &i32) -> [i32; F] {
+pub fn scale<'a, const F: usize, T: Mul<Output = T> + Div<Output = T> + Debug + Copy>(vec: &'a [T; F], scalar: &T) -> [T; F]
+where 
+    &'a T: Mul<&'a T>
+{
     vec.iter()
-        .map(|a| a * scalar)
-        .collect::<Vec<i32>>()
+        .map(|a| *a * *scalar)
+        .collect::<Vec<T>>()
         .try_into()
         .unwrap()
 }
@@ -142,11 +153,12 @@ pub fn scale<const F: usize>(vec: &[i32; F], scalar: &i32) -> [i32; F] {
 /// # Returns
 ///
 /// A new vector containing the result of multiplying the matrix and vector.
-pub fn matrix_vec_multiply<const M: usize, const N: usize>(
-    matrix: &[[i32; N]; M],
-    vector: &[i32; N],
-) -> [i32; M] {
-    let mut result = [0; M];
+pub fn matrix_vec_multiply<'a, 'b, const M: usize, const N: usize, T: Mul<Output = T> + Add<Output = T> + Debug + Copy + Default + std::ops::AddAssign>(
+    matrix: &'a [[T; N]; M],
+    vector: &'b [T; N],
+) -> [T; M] {
+    let zero: T = T::default();
+    let mut result: [T; M] = [zero; M];
     for i in 0..M {
         for j in 0..N {
             result[i] += matrix[j][i] * vector[j];
@@ -161,10 +173,14 @@ mod tests {
 
     #[test]
     fn test_sub() {
-        let a = [1, 2];
+        let a: [i32; 2] = [1, 2];
         let b = [5, 4];
-        let expected = [-4, -2];
-        assert_eq!(sub(&a, &b), expected);
+        let expectedi32 = [-4, -2];
+        assert_eq!(sub(&a, &b), expectedi32);
+        let c: [i64; 2] = [1, 2];
+        let d = [5, 4];
+        let expectedi64 = [-4, -2];
+        assert_eq!(sub(&c, &d), expectedi64);
     }
 
     #[test]
