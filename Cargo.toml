@@ -4,6 +4,9 @@ version = "0.1.0"
 edition = "2021"
 license = "GPL-3.0-or-later"
 description = "A collection of vector operations for Rust."
-
+repository = "https://github.com/Kai-Smith/vector_operations"
+readme = "readme.md"
+keywords = ["vector", "operations", "math"]
+categories = ["mathematics"]
 
 [dependencies]
